@@ -1,44 +1,21 @@
-FROM ubuntu:latest
+FROM python:3.9-alpine
 
-ENV DEBIAN_FRONTEND=noninteractive \
-    PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=off \
-    PIP_DISABLE_PIP_VERSION_CHECK=on \
-    PIP_DEFAULT_TIMEOUT=100 \
-    POETRY_VERSION=1.1.13 \
-    POETRY_HOME="/opt/poetry" \
-    POETRY_VIRTUALENVS_IN_PROJECT=true \
-    POETRY_NO_INTERACTION=1 \
-    PYSETUP_PATH="/opt/pysetup" \
-    VENV_PATH="/opt/pysetup/.venv"
+# Setup env
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONFAULTHANDLER 1
+ENV PIP_DISABLE_PIP_VERSION_CHECK=on
 
-# prepend poetry and venv to path
-ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
+RUN apk update && apk upgrade && \
+    apk add gcc git curl linux-headers musl-dev libffi-dev
 
-RUN apt-get update \
-  && apt-get install -y python3-pip python3-dev curl \
-  && cd /usr/local/bin \
-  && ln -s /usr/bin/python3 python \
-  && rm -rf /var/lib/apt/lists/*
+RUN pip install --upgrade pip && \
+    pip install poetry
 
-WORKDIR /usr/src/app
+COPY . ./
 
-# install poetry - respects $POETRY_VERSION & $POETRY_HOME
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-RUN curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python -
+RUN poetry install --no-interaction --no-dev
 
-# copy project requirement files here to ensure they will be cached.
-WORKDIR $PYSETUP_PATH
-COPY poetry.lock pyproject.toml ./
-
-# install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
-RUN poetry install --no-dev
-
-COPY ./app .
-
-USER 9000
-
-CMD ["gunicorn", "main:app", "-b", "0.0.0.0:8080", "-w", "1","-k", "uvicorn.workers.UvicornWorker", "-t", "0", "--log-config", "logging.config", "--log-level", "info"]
-
-EXPOSE 8080
+EXPOSE 8000
+ENTRYPOINT [ "poetry", "run", "gunicorn", "app.main:app", "-b", "0.0.0.0:8080", "-w", "1","-k", "uvicorn.workers.UvicornWorker", "-t", "0", "--log-config", "app/logging.config", "--log-level", "info"]

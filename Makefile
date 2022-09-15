@@ -5,30 +5,33 @@ default: | help
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
+.PHONY: setup-dev
+setup-dev: ## Installs required packages for the app and tests
+	poetry install
+
+.PHONY: test
+test: ## Run tests
+	poetry install
+	poetry run pytest
 
 .PHONY: run-dev
 run-dev: ## Run the app using gunicorn on your machine
-	./bin/run-dev.sh
+	./bin/run-dev.sh 'random1234567890'
 
 .PHONY: run-docker-dev
 .ONESHELL:
 .SILENT:
 run-docker-dev: ## Creates docker image from Dockerfile and runs the image
-	read -p "Enter the appname:" appname; \
-	./bin/run-docker-dev.sh $$appname
-
-.PHONY: setup-dev
-setup-dev: ## Installs required packages for the app and tests
-	./bin/setup-dev.sh
+	./bin/run-docker-dev.sh dapla-statbank-authenticator 'random1234567890'
 
 .PHONY: setup-pre-commit
 setup-pre-commit: ## Installs Black and creates a pre-commit-hook to enforce code formatting
-	./bin/setup-pre-commit.sh
+	poetry run pre-commit install
 
-.PHONY: init-app
-.ONESHELL:
-.SILENT:
-init-app: ## Prepares the pipeline and deployment descriptor for usage
-	read -p "Enter the appname:" appname; \
-	read -p "Enter the teamname:" teamname; \
-	./bin/init-app.sh $$appname $$teamname
+.PHONY: bump-version-patch
+bump-version-patch: ## Bump patch version, e.g. 0.0.1 -> 0.0.2.
+	bump2version patch
+
+.PHONY: bump-version-minor
+bump-version-minor: ## Bump minor version, e.g. 0.0.1 -> 0.1.0.
+	bump2version minor
