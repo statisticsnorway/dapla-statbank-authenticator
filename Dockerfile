@@ -17,5 +17,5 @@ COPY . ./
 
 RUN poetry install --no-interaction --no-dev
 
-EXPOSE 8000
+EXPOSE 8080
 ENTRYPOINT [ "poetry", "run", "gunicorn", "app.main:app", "-b", "0.0.0.0:8080", "-w", "1","-k", "uvicorn.workers.UvicornWorker", "-t", "0", "--log-config", "app/logging.config", "--log-level", "info"]
