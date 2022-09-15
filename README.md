@@ -70,11 +70,3 @@ Then the fix is to change the python interpreter version where poetry is install
 curl -sSL https://install.python-poetry.org | python3 - --uninstall
 curl -sSL https://install.python-poetry.org | python3.9 -
 ```
-
-
-
-### Using Black as code formatter
-
-If you'd like to use [Black](https://pypi.org/project/black/) as a code formatter in your repository run the
-command `make setup-pre-commit` to install Black and configure a pre-commit-hook.
-The commit will fail if Black reformats any files, so a new commit must be initiated
