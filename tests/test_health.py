@@ -7,15 +7,18 @@ client = TestClient(api)
 logger = logging.getLogger()
 
 
-def test_ready():
-    """Tests the ready endpoint. Is always 200 for now"""
-    response = client.get("/health/ready")
+def test_liveness():
+    """Tests the liveness endpoint. Is always 200 for now"""
+    response = client.get("/health/liveness")
     assert response.status_code == 200
-    assert response.json() == "Ready!"
+    assert response.json() == {
+        "name": "dapla-statbank-authenticator",
+        "status": "UP"
+    }
 
 
-def test_alive():
-    """Tests the alive endpoint. Is always 200 for now"""
-    response = client.get("/health/alive")
+def test_readiness():
+    """Tests the readiness endpoint. Is always 200 for now"""
+    response = client.get("/health/readiness")
 
     assert response.status_code == 200

@@ -25,16 +25,22 @@ logger.handlers[0].setFormatter(formatter)
 Instrumentator(excluded_handlers=["/health/.*", "/metrics"]).instrument(app).expose(app)
 
 
-@app.get("/health/ready", status_code=200)
-def ready():
-    """Tells whether or not the app is ready to receive requests"""
-    return "Ready!"
-
-
-@app.get("/health/alive", status_code=200)
-def alive():
+@app.get("/health/liveness", status_code=200)
+def health_liveness():
     """Tells whether or not the app is alive"""
-    return "Alive!"
+    return {
+        "name": "dapla-statbank-authenticator",
+        "status": "UP"
+    }
+
+
+@app.get("/health/readiness", status_code=200)
+def health_readiness():
+    """Tells whether or not the app is ready to receive requests"""
+    return {
+        "name": "dapla-statbank-authenticator",
+        "status": "UP"
+    }
 
 
 @app.post("/encrypt", status_code=200, response_model=EncryptionResponse)
