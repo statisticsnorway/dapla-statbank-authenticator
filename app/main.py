@@ -85,10 +85,10 @@ def app_startup():
         crc32c = google_crc32c.Checksum()
         crc32c.update(response.payload.data)
         if response.payload.data_crc32c != int(crc32c.hexdigest(), 16):
-            logger.error("Data corruption detected.", response)
-
-        logger.info(f"Replacing CIPHER_KEY from Secret Manager")
-        os.environ['CIPHER_KEY'] = response.payload.data.decode("UTF-8")
+            logger.error("Data corruption detected. Invalid checksum.")
+        else:
+            logger.info(f"Replacing CIPHER_KEY from Secret Manager")
+            os.environ['CIPHER_KEY'] = response.payload.data.decode("UTF-8")
 
 
 def _get_project_and_name(env_var_value: str) -> (str, str, str):
@@ -105,14 +105,14 @@ def _get_project_and_name(env_var_value: str) -> (str, str, str):
     if without_prefix == "":
         log_msg = f"No project ID and name defined in {env_var_value}"
         logging.error(log_msg)
-        raise Exception(log_msg)
+        raise EnvironmentError(log_msg)
 
     splitted = without_prefix.split("/", 1)
 
     if splitted[1] == "":
         log_msg = f"No name defined in {env_var_value}"
         logging.error(log_msg)
-        raise Exception(log_msg)
+        raise EnvironmentError(log_msg)
 
     if "#" in splitted[1]:
         return splitted[0], *splitted[1].split("#", 1)
