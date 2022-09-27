@@ -31,3 +31,16 @@ def test_encrypt():
     assert response.json() == {
         "message": 'dQB+Eaf751En6/j4TQtrcg=='
     }
+
+
+def test_parsing():
+    from app.main import _get_project_and_name
+    project_id, name, version = _get_project_and_name('sm://my-project/my-secret')
+    assert project_id == 'my-project'
+    assert name == 'my-secret'
+    assert version == 'latest'
+
+    project_id, name, version = _get_project_and_name('sm://my-project/my-secret#1')
+    assert project_id == 'my-project'
+    assert name == 'my-secret'
+    assert version == '1'
