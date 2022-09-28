@@ -27,6 +27,7 @@ Instrumentator(excluded_handlers=["/health/.*", "/metrics"]).instrument(app).exp
 
 SECRET_MANAGER_PREFIX = "sm://"
 
+
 @app.get("/health/liveness", status_code=200)
 def health_liveness():
     """Tells whether or not the app is alive"""
