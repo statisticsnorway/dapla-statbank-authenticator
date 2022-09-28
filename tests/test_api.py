@@ -11,7 +11,7 @@ from google.auth import credentials
 CIPHER_KEY_16_DIGIT = '@NcRfUjXn2r5u8x/'
 
 client = TestClient(app)
-# Dummy implementation of the Secret Manager Service
+# Local instance of Secret Manager Service that can be used to fake reponses
 sm_client = SecretManagerServiceClient(credentials=credentials.AnonymousCredentials)
 app.dependency_overrides[get_sm_client] = lambda: sm_client
 
