@@ -4,8 +4,18 @@ from fastapi.testclient import TestClient
 
 from pathlib import Path
 from app import __version__
-from app.main import app, get_project_and_name, get_secret_manager_client
-from unittest.mock import Mock
+from app.main import app, get_project_and_name, get_sm_client
+from google.cloud.secretmanager import SecretManagerServiceClient, AccessSecretVersionResponse, SecretPayload
+from google.auth import credentials
+
+client = TestClient(app)
+# Mock the Secret Manager Service
+sm_client_mock = SecretManagerServiceClient(credentials=credentials.AnonymousCredentials)
+app.dependency_overrides[get_sm_client] = lambda: sm_client_mock
+# Fake the access_secret_version response
+sm_client_mock.access_secret_version = lambda request: AccessSecretVersionResponse(
+    payload=SecretPayload(data="@NcRfUjXn2r5u8x/".encode("UTF-8"))
+)
 
 
 def test_versions_are_in_sync():
@@ -22,42 +32,36 @@ def test_versions_are_in_sync():
 
 def test_encrypt():
     os.environ['CIPHER_KEY'] = '@NcRfUjXn2r5u8x/'
-    with TestClient(app) as client:
-        response = client.post("/encrypt", json={
-            "message": "mysecretmessage"
-        })
-        assert response.status_code == 200
-        # The same cipher will always create the same result
-        assert response.json() == {
-            "message": 'dQB+Eaf751En6/j4TQtrcg=='
-        }
+    response = client.post("/encrypt", json={
+        "message": "mysecretmessage"
+    })
+    assert response.status_code == 200
+    # The same cipher will always create the same result
+    assert response.json() == {
+        "message": 'dQB+Eaf751En6/j4TQtrcg=='
+    }
 
 
 def test_encrypt_with_sm_key():
     os.environ['CIPHER_KEY'] = 'sm://my-project/my-key'
-    sm_client_mock = Mock()
-    sm_response = {
-        "payload": "dQB+Eaf751En6/j4TQtrcg=="
+    response = client.post("/encrypt", json={
+        "message": "mysecretmessage"
+    })
+    assert response.status_code == 200
+    # The same cipher will always create the same result
+    assert response.json() == {
+        "message": 'dQB+Eaf751En6/j4TQtrcg=='
     }
-    sm_client_mock.access_secret_version = lambda arg: sm_response
-    with TestClient(app) as client:
-        app.dependency_overrides[get_secret_manager_client] = lambda: sm_client_mock
-        response = client.post("/encrypt", json={
-            "message": "mysecretmessage"
-        })
-        assert response.status_code == 200
-        # The same cipher will always create the same result
-        assert response.json() == {
-            "message": 'dQB+Eaf751En6/j4TQtrcg=='
-        }
 
 
-def test_parsing():
+def test_parse_with_default_version():
     project_id, name, version = get_project_and_name('sm://my-project/my-secret')
     assert project_id == 'my-project'
     assert name == 'my-secret'
     assert version == 'latest'
 
+
+def test_parse_with_version():
     project_id, name, version = get_project_and_name('sm://my-project/my-secret#1')
     assert project_id == 'my-project'
     assert name == 'my-secret'

@@ -8,7 +8,6 @@ from app import __version__
 from app.types import EncryptionRequest, EncryptionResponse
 from aes_pkcs5.algorithms.aes_ecb_pkcs5_padding import AESECBPKCS5Padding
 from google.cloud.secretmanager import SecretManagerServiceClient
-import google_crc32c
 
 app = FastAPI()
 
@@ -46,12 +45,12 @@ def health_readiness():
     }
 
 
-def get_secret_manager_client():
+def get_sm_client() -> SecretManagerServiceClient:
     return SecretManagerServiceClient()
 
 
 @app.post("/encrypt", status_code=200, response_model=EncryptionResponse)
-def encrypt(request: EncryptionRequest, sm_client: SecretManagerServiceClient = Depends(get_secret_manager_client)):
+def encrypt(request: EncryptionRequest, sm_client: SecretManagerServiceClient = Depends(get_sm_client)):
     """Encrypts a message with a given key. Uses AES with CBC/ECB mode and padding scheme PKCS5."""
     if 'CIPHER_KEY' not in os.environ:
         error_msg = 'Missing environment variable: CIPHER_KEY'
@@ -59,8 +58,14 @@ def encrypt(request: EncryptionRequest, sm_client: SecretManagerServiceClient = 
         raise HTTPException(status_code=500, detail=error_msg)
 
     cipher_key = os.environ['CIPHER_KEY']
+    # The cipher key can either be stored directly in the environment variable, or via Secret Manager
     if cipher_key.startswith(SECRET_MANAGER_PREFIX):
-        cipher_key = get_key_from_secret_manager(cipher_key, sm_client)
+        project_id, secret_id, version = get_project_and_name(cipher_key)
+        # Build the resource name of the secret version.
+        name = f"projects/{project_id}/secrets/{secret_id}/versions/{version}"
+        # Access the secret version.
+        response = sm_client.access_secret_version(request={"name": name})
+        cipher_key = response.payload.data.decode("UTF-8")
 
     if len(cipher_key) != 16:
         error_msg = 'CIPHER_KEY must be of length 16'
@@ -76,27 +81,6 @@ def encrypt(request: EncryptionRequest, sm_client: SecretManagerServiceClient = 
 def app_startup():
     """Does some initial startup stuff"""
     logger.info(f"Starting Statbank Authenticator version {__version__} ...")
-
-
-def get_key_from_secret_manager(key: str, client: SecretManagerServiceClient):
-    project_id, secret_id, version = get_project_and_name(key)
-    # Build the resource name of the secret version.
-    name = f"projects/{project_id}/secrets/{secret_id}/versions/{version}"
-
-    print("**** Response")
-    # Access the secret version.
-    response = client.access_secret_version(request={"name": name})
-    print("**** Response")
-    print(response.payload)
-
-    # Verify payload checksum.
-    crc32c = google_crc32c.Checksum()
-    crc32c.update(response.payload.data)
-    if response.payload.data_crc32c != int(crc32c.hexdigest(), 16):
-        logger.error("Data corruption detected. Invalid checksum.")
-    else:
-        logger.info(f"Replacing CIPHER_KEY from Secret Manager")
-        return response.payload.data.decode("UTF-8")
 
 
 def get_project_and_name(env_var_value: str) -> (str, str, str):
@@ -115,6 +99,7 @@ def get_project_and_name(env_var_value: str) -> (str, str, str):
         logging.error(log_msg)
         raise EnvironmentError(log_msg)
 
+    # Split [PROJECT]/[NAME]#[VERSION]
     splitted = without_prefix.split("/", 1)
 
     if splitted[1] == "":
