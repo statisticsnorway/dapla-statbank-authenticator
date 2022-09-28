@@ -8,14 +8,12 @@ from app.main import app, get_project_and_name, get_sm_client
 from google.cloud.secretmanager import SecretManagerServiceClient, AccessSecretVersionResponse, SecretPayload
 from google.auth import credentials
 
+CIPHER_KEY_16_DIGIT = '@NcRfUjXn2r5u8x/'
+
 client = TestClient(app)
-# Mock the Secret Manager Service
-sm_client_mock = SecretManagerServiceClient(credentials=credentials.AnonymousCredentials)
-app.dependency_overrides[get_sm_client] = lambda: sm_client_mock
-# Fake the access_secret_version response
-sm_client_mock.access_secret_version = lambda request: AccessSecretVersionResponse(
-    payload=SecretPayload(data="@NcRfUjXn2r5u8x/".encode("UTF-8"))
-)
+# Dummy implementation of the Secret Manager Service
+sm_client = SecretManagerServiceClient(credentials=credentials.AnonymousCredentials)
+app.dependency_overrides[get_sm_client] = lambda: sm_client
 
 
 def test_versions_are_in_sync():
@@ -30,8 +28,25 @@ def test_versions_are_in_sync():
     assert package_init_version == pyproject_version
 
 
+def test_encrypt_without_env_variable():
+    response = client.post("/encrypt", json={
+        "message": "mysecretmessage"
+    })
+    assert response.status_code == 500
+    assert response.json() == {'detail': 'Missing environment variable: CIPHER_KEY'}
+
+
+def test_encrypt_with_invalid_cipher():
+    os.environ['CIPHER_KEY'] = 'invalid_cipher'
+    response = client.post("/encrypt", json={
+        "message": "mysecretmessage"
+    })
+    assert response.status_code == 500
+    assert response.json() == {'detail': 'CIPHER_KEY must be of length 16'}
+
+
 def test_encrypt():
-    os.environ['CIPHER_KEY'] = '@NcRfUjXn2r5u8x/'
+    os.environ['CIPHER_KEY'] = CIPHER_KEY_16_DIGIT
     response = client.post("/encrypt", json={
         "message": "mysecretmessage"
     })
@@ -43,6 +58,10 @@ def test_encrypt():
 
 
 def test_encrypt_with_sm_key():
+    # Fake the response from Secret Manager
+    sm_client.access_secret_version = lambda request: AccessSecretVersionResponse(
+        payload=SecretPayload(data=CIPHER_KEY_16_DIGIT.encode("UTF-8"))
+    )
     os.environ['CIPHER_KEY'] = 'sm://my-project/my-key'
     response = client.post("/encrypt", json={
         "message": "mysecretmessage"
