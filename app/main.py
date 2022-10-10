@@ -8,7 +8,15 @@ from app import __version__
 from app.types import EncryptionRequest, EncryptionResponse
 from aes_pkcs5.algorithms.aes_ecb_pkcs5_padding import AESECBPKCS5Padding
 
-app = FastAPI()
+tags_metadata = [
+    {
+        "name": "encrypt",
+        "description": "Encrypts a message with a given key. Uses AES with CBC/ECB mode and padding scheme PKCS5.",
+    },
+]
+
+app = FastAPI(title="Dapla Statbank Authenticator", description="An authentication service for Statistikkbanken",
+              openapi_tags=tags_metadata)
 
 # Logging
 # Get the loghandler and rename the field "levelname" to severity
@@ -24,7 +32,6 @@ logger.handlers[0].setFormatter(formatter)
 # Metrics
 Instrumentator(excluded_handlers=["/health/.*", "/metrics"]).instrument(app).expose(app)
 
-
 @app.get("/health/ready", status_code=200)
 def ready():
     """Tells whether or not the app is ready to receive requests"""
@@ -37,7 +44,7 @@ def alive():
     return "Alive!"
 
 
-@app.post("/encrypt", status_code=200, response_model=EncryptionResponse)
+@app.post("/encrypt", status_code=200, response_model=EncryptionResponse, tags=["encrypt"])
 def encrypt(request: EncryptionRequest):
     """Encrypts a message with a given key. Uses AES with CBC/ECB mode and padding scheme PKCS5."""
     if 'CIPHER_KEY' not in os.environ:

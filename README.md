@@ -1,6 +1,8 @@
 # Dapla Statbank Authenticator
 
-An authentication service for Statistikkbanken used in Statistics Norway
+An authentication service for Statistikkbanken used in Statistics Norway. It serves the following endpoints:
+
+![Endpoints](./doc/api.png)
 
 ## Contributing
 
