@@ -17,6 +17,7 @@ resources:
     - repository: templates
       type: github
       name: statisticsnorway/azure-pipelines-templates
+      ref: refs/heads/add-snyk-parameters
       endpoint: statisticsnorway
 
 # Pipeline will be run on this base image
@@ -45,6 +46,8 @@ jobs:
       appName: $(appName)
       namespace: $(namespace)
       sonarCloud: $(sonarCloud)
+      snykServiceConnection: 'snyk-Statistikktjenester'
+      snykOrganisation: 'Statistikktjenester'
 
   # Pull and retag docker image. Will only run if it is a tag-operation on the repo.
   # See https://github.com/statisticsnorway/azure-pipelines-templates/blob/master/docker/docker-tag-for-production.yml
