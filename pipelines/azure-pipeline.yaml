@@ -37,6 +37,8 @@ variables:
     value: 'dapla'
   - name: sonarCloud
     value: 'bipSonarCloud'
+  - name: imageName
+    value: 'eu.gcr.io/prod-bip/ssb/$(namespace)/$(appName)'
   - name: imageNameNexus
     value: 'nexus.ssb.no:8437/prod-bip/ssb/$(namespace)/$(appName)'
 
@@ -49,13 +51,15 @@ jobs:
       snykServiceConnection: 'snyk-Statistikktjenester'
       snykOrganisation: 'statistikktjenester'
 
-  # Pull and retag docker image. Will only run if it is a tag-operation on the repo.
-  # See https://github.com/statisticsnorway/azure-pipelines-templates/blob/master/docker/docker-tag-for-production.yml
-  - template: docker/docker-tag-for-production.yml@templates
-    parameters:
-      tagToTag: 'master-$(Build.SourceVersion)'
-      gcrImageName: 'eu.gcr.io/prod-bip/ssb/$(namespace)/$(appName)'
-
+  # Need to tag 'latest' image
+  - script: |
+      cat $(gcrJsonKey.secureFilePath) | docker login -u _json_key --password-stdin ${{ variables.imageHost }}
+      docker pull $(variables.imageName):$(Build.SourceBranchName)-$(Build.SourceVersion)
+      docker tag $(variables.imageName):$(Build.SourceBranchName)-$(Build.SourceVersion) $(variables.imageName):latest
+      docker push $(variables.imageName):latest
+    displayName: "Retagging latest image"
+    #condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+      
   - job: deployToStagingOnPrem    
     pool:
       name: jupyterhub-onprem-staging
@@ -73,4 +77,11 @@ jobs:
           docker pull $IMAGE
           echo "Removing dangling images"
           docker image prune --force
+
+  # Pull and retag docker image. Will only run if it is a tag-operation on the repo.
+  # See https://github.com/statisticsnorway/azure-pipelines-templates/blob/master/docker/docker-tag-for-production.yml
+  - template: docker/docker-tag-for-production.yml@templates
+    parameters:
+      tagToTag: 'master-$(Build.SourceVersion)'
+      gcrImageName: '$(variables.imageName)'
 
