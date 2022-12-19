@@ -62,9 +62,9 @@ jobs:
           secureFile: 'gcr-key.json'
       - script: |
           cat $(gcrJsonKey.secureFilePath) | docker login -u _json_key --password-stdin ${{ variables.imageHost }}
-          docker pull $(variables.imageName):$(Build.SourceBranchName)-$(Build.SourceVersion)
-          docker tag $(variables.imageName):$(Build.SourceBranchName)-$(Build.SourceVersion) $(variables.imageName):latest
-          docker push $(variables.imageName):latest
+          docker pull $(imageName):$(Build.SourceBranchName)-$(Build.SourceVersion)
+          docker tag $(imageName):$(Build.SourceBranchName)-$(Build.SourceVersion) $(imageName):latest
+          docker push $(imageName):latest
         displayName: "Retagging latest image"
       
   - job: deployToStagingOnPrem
@@ -79,7 +79,7 @@ jobs:
     steps:
       - script: |
           set -e          
-          IMAGE=${{ variables.imageNameNexus }}:latest
+          IMAGE=$(imageNameNexus):latest
           echo "Pulling $IMAGE"
           docker pull $IMAGE
           echo "Removing dangling images"
@@ -90,5 +90,5 @@ jobs:
   - template: docker/docker-tag-for-production.yml@templates
     parameters:
       tagToTag: 'master-$(Build.SourceVersion)'
-      gcrImageName: '$(variables.imageName)'
+      gcrImageName: '$(imageName)'
 
