@@ -60,7 +60,7 @@ jobs:
       - agent.name -equals staging-agent
 
     displayName: "Deploying to staging on prem"
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    #condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
     steps:
       - script: |
           set -e
