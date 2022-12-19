@@ -53,7 +53,7 @@ jobs:
   - job: tagLatestImage
     displayName: "Tag latest image"
     dependsOn: mergeToMaster
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
     steps:
       - task: DownloadSecureFile@1
         name: gcrJsonKey
