@@ -46,7 +46,6 @@ jobs:
     displayName: 'Build docker image'
     steps:
       - template: python/python-complete-build.yml@templates
-        steps:
         parameters:
           appName: $(appName)
           namespace: $(namespace)
