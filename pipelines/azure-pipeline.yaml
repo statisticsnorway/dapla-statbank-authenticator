@@ -35,7 +35,11 @@ variables:
   - name: namespace
     value: 'dapla'
   - name: sonarCloud
-    value: 'bipSonarCloud-Dapla'
+    value: 'bipSonarCloud'
+  - name: imageName
+    value: 'eu.gcr.io/prod-bip/ssb/$(namespace)/$(appName)'
+  - name: imageNameNexus
+    value: 'nexus.ssb.no:8437/prod-bip/ssb/$(namespace)/$(appName)'
 
 jobs:
   - template: python/python-complete-build.yml@templates
@@ -43,10 +47,65 @@ jobs:
       appName: $(appName)
       namespace: $(namespace)
       sonarCloud: $(sonarCloud)
+      snykServiceConnection: 'snyk-Statistikktjenester'
+      snykOrganisation: 'statistikktjenester'
+
+  - job: tagLatestImage
+    displayName: "Tag latest image"
+    dependsOn: pullRequest
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    steps:
+      - task: DownloadSecureFile@1
+        name: gcrJsonKey
+        displayName: 'Download gcr creds'
+        inputs:
+          secureFile: 'gcr-key.json'
+      - script: |
+          cat $(gcrJsonKey.secureFilePath) | docker login -u _json_key --password-stdin https://eu.gcr.io
+          docker pull $(imageName):$(Build.SourceBranchName)-$(Build.SourceVersion)
+          docker tag $(imageName):$(Build.SourceBranchName)-$(Build.SourceVersion) $(imageName):latest
+          docker push $(imageName):latest
+        displayName: "Retagging latest image"
+      
+  - job: deployToStagingOnPrem
+    dependsOn: tagLatestImage
+    displayName: "Deploying to staging on prem"
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    pool:
+      name: jupyterhub-onprem-staging
+      demands:
+      - agent.name -equals staging-agent
+    steps:
+      - script: |
+          set -e          
+          IMAGE=$(imageNameNexus):latest
+          echo "Pulling $IMAGE"
+          docker pull $IMAGE
+          echo "Removing dangling images"
+          docker image prune --force
 
   # Pull and retag docker image. Will only run if it is a tag-operation on the repo.
   # See https://github.com/statisticsnorway/azure-pipelines-templates/blob/master/docker/docker-tag-for-production.yml
   - template: docker/docker-tag-for-production.yml@templates
     parameters:
       tagToTag: 'master-$(Build.SourceVersion)'
-      gcrImageName: 'eu.gcr.io/prod-bip/ssb/$(namespace)/$(appName)'
+      gcrImageName: '$(imageName)'
+      onPremise: 'true'
+      
+  - job: deployToProdOnPrem
+    dependsOn: dockerTagForProd
+    pool:
+      name: jupyterhub-onprem-prod
+      demands:
+      - agent.name -equals prod-agent
+    
+    displayName: "Deploying to prod on prem"
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+    steps:
+      - script: |
+          set -e
+          IMAGE=$(imageNameNexus):deploy-to-prod
+          echo "Pulling $IMAGE"
+          docker pull $IMAGE
+          echo "Removing dangling images"
+          docker image prune --force
