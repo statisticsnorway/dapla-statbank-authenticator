@@ -53,7 +53,7 @@ jobs:
   - job: tagLatestImage    
     displayName: "Retagging latest image"
     #condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-    condition: and(succeeded()
+    condition: succeeded()
     steps:
       - script: |
           cat $(gcrJsonKey.secureFilePath) | docker login -u _json_key --password-stdin ${{ variables.imageHost }}
@@ -64,7 +64,7 @@ jobs:
   - job: deployToStagingOnPrem    
     displayName: "Deploying to staging on prem"
     #condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-    condition: and(succeeded()
+    condition: succeeded()
     pool:
       name: jupyterhub-onprem-staging
       demands:
