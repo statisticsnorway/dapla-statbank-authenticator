@@ -50,14 +50,21 @@ jobs:
       snykServiceConnection: 'snyk-Statistikktjenester'
       snykOrganisation: 'statistikktjenester'
 
-  - script: |
-      cat $(gcrJsonKey.secureFilePath) | docker login -u _json_key --password-stdin ${{ variables.imageHost }}
-      docker pull $(variables.imageName):$(Build.SourceBranchName)-$(Build.SourceVersion)
-      docker tag $(variables.imageName):$(Build.SourceBranchName)-$(Build.SourceVersion) $(variables.imageName):latest
-      docker push $(variables.imageName):latest
-    displayName: "Retagging latest image"
+  - job: deployToStagingOnPrem   
     #condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
     condition: succeeded()
+    steps:
+      - task: DownloadSecureFile@1
+        name: gcrJsonKey
+        displayName: 'Download gcr creds'
+        inputs:
+          secureFile: 'gcr-key.json'
+      - script: |
+          cat $(gcrJsonKey.secureFilePath) | docker login -u _json_key --password-stdin ${{ variables.imageHost }}
+          docker pull $(variables.imageName):$(Build.SourceBranchName)-$(Build.SourceVersion)
+          docker tag $(variables.imageName):$(Build.SourceBranchName)-$(Build.SourceVersion) $(variables.imageName):latest
+          docker push $(variables.imageName):latest
+        displayName: "Retagging latest image"
       
   - job: deployToStagingOnPrem    
     displayName: "Deploying to staging on prem"
