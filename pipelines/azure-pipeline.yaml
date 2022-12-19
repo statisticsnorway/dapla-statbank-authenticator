@@ -35,7 +35,7 @@ variables:
   - name: namespace
     value: 'dapla'
   - name: sonarCloud
-    value: 'bipSonarCloud-Dapla'
+    value: 'bipSonarCloud'
   - name: imageNameNexus
     value: 'nexus.ssb.no:8437/prod-bip/ssb/$(namespace)/$(appName)'
 
