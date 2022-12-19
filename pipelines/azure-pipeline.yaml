@@ -42,25 +42,22 @@ variables:
     value: 'nexus.ssb.no:8437/prod-bip/ssb/$(namespace)/$(appName)'
 
 jobs:
-  - job: dockerBuildAndDockerPush
-    displayName: 'Build docker image'
-    steps:
-      - template: python/python-complete-build.yml@templates
-        parameters:
-          appName: $(appName)
-          namespace: $(namespace)
-          sonarCloud: $(sonarCloud)
-          snykServiceConnection: 'snyk-Statistikktjenester'
-          snykOrganisation: 'statistikktjenester'
+  - template: python/python-complete-build.yml@templates
+    parameters:
+      appName: $(appName)
+      namespace: $(namespace)
+      sonarCloud: $(sonarCloud)
+      snykServiceConnection: 'snyk-Statistikktjenester'
+      snykOrganisation: 'statistikktjenester'
 
-      - script: |
-          cat $(gcrJsonKey.secureFilePath) | docker login -u _json_key --password-stdin ${{ variables.imageHost }}
-          docker pull $(variables.imageName):$(Build.SourceBranchName)-$(Build.SourceVersion)
-          docker tag $(variables.imageName):$(Build.SourceBranchName)-$(Build.SourceVersion) $(variables.imageName):latest
-          docker push $(variables.imageName):latest
-        displayName: "Retagging latest image"
-        #condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-        condition: succeeded()
+  - script: |
+      cat $(gcrJsonKey.secureFilePath) | docker login -u _json_key --password-stdin ${{ variables.imageHost }}
+      docker pull $(variables.imageName):$(Build.SourceBranchName)-$(Build.SourceVersion)
+      docker tag $(variables.imageName):$(Build.SourceBranchName)-$(Build.SourceVersion) $(variables.imageName):latest
+      docker push $(variables.imageName):latest
+    displayName: "Retagging latest image"
+    #condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    condition: succeeded()
       
   - job: deployToStagingOnPrem    
     displayName: "Deploying to staging on prem"
