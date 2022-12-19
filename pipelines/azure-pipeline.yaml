@@ -51,9 +51,9 @@ jobs:
       snykOrganisation: 'statistikktjenester'
 
   - job: tagLatestImage
+    displayName: "Tag latest image"
     dependsOn: pullRequest
-    #condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-    condition: succeeded()
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
     steps:
       - task: DownloadSecureFile@1
         name: gcrJsonKey
@@ -99,7 +99,7 @@ jobs:
       demands:
       - agent.name -equals prod-agent
     
-    displayName: "Deploying to prod"
+    displayName: "Deploying to prod on prem"
     condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
     steps:
       - script: |
