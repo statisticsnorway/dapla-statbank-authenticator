@@ -36,6 +36,8 @@ variables:
     value: 'dapla'
   - name: sonarCloud
     value: 'bipSonarCloud-Dapla'
+  - name: imageNameNexus
+    value: 'nexus.ssb.no:8437/prod-bip/ssb/$(namespace)/$(appName)'
 
 jobs:
   - template: python/python-complete-build.yml@templates
@@ -50,3 +52,22 @@ jobs:
     parameters:
       tagToTag: 'master-$(Build.SourceVersion)'
       gcrImageName: 'eu.gcr.io/prod-bip/ssb/$(namespace)/$(appName)'
+
+  - job: deployToStagingOnPrem    
+    pool:
+      name: jupyterhub-onprem-staging
+      demands:
+      - agent.name -equals staging-agent
+
+    displayName: "Deploying to staging on prem"
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    steps:
+      - script: |
+          set -e
+          
+          IMAGE=${{ variables.imageNameNexus }}:latest
+          echo "Pulling $IMAGE"
+          docker pull $IMAGE
+          echo "Removing dangling images"
+          docker image prune --force
+
