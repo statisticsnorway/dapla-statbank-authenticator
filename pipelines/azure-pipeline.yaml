@@ -61,7 +61,7 @@ jobs:
         inputs:
           secureFile: 'gcr-key.json'
       - script: |
-          cat $(gcrJsonKey.secureFilePath) | docker login -u _json_key --password-stdin ${{ variables.imageHost }}
+          cat $(gcrJsonKey.secureFilePath) | docker login -u _json_key --password-stdin https://eu.gcr.io
           docker pull $(imageName):$(Build.SourceBranchName)-$(Build.SourceVersion)
           docker tag $(imageName):$(Build.SourceBranchName)-$(Build.SourceVersion) $(imageName):latest
           docker push $(imageName):latest
