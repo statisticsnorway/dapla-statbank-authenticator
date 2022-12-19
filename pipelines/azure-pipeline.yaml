@@ -51,7 +51,7 @@ jobs:
       snykOrganisation: 'statistikktjenester'
 
   - job: tagLatestImage
-    dependsOn: mergeToMaster
+    dependsOn: pullRequest
     #condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
     condition: succeeded()
     steps:
