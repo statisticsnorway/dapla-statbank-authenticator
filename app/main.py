@@ -49,9 +49,13 @@ def health_readiness():
 
 def get_sm_client() -> SecretManagerServiceClient:
     try:
-        return SecretManagerServiceClient()
-    except DefaultCredentialsError:
-        logger.info("Secret Manager Client is not available")
+        if running_onprem():
+            logger.info("Running on-prem. Secret Manager Client will not be available")
+            return None
+        else:
+            return SecretManagerServiceClient()
+    except DefaultCredentialsError as cred_error:
+        logger.exception("Failed to create Secret Manager Client", cred_error)
 
 
 @app.post("/encrypt", status_code=200, response_model=EncryptionResponse)
@@ -117,3 +121,11 @@ def get_project_and_name(env_var_value: str) -> (str, str, str):
         return splitted[0], *splitted[1].split("#", 1)
     else:
         return splitted[0], splitted[1], 'latest'
+
+
+def running_onprem() -> bool:
+    """Uses the JUPYTER_IMAGE_SPEC environment variable to check whether or not this application is running on-prem
+    Returns:
+        True if running on-prem, else False.
+    """
+    return "onprem" in os.environ.get("JUPYTER_IMAGE_SPEC", "")
