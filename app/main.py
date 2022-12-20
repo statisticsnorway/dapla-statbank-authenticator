@@ -47,7 +47,10 @@ def health_readiness():
 
 
 def get_sm_client() -> SecretManagerServiceClient:
-    return SecretManagerServiceClient()
+    try:
+        return SecretManagerServiceClient()
+    except:
+        logger.info("Secret Manager Client is not available")
 
 
 @app.post("/encrypt", status_code=200, response_model=EncryptionResponse)
