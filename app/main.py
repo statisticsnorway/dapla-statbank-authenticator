@@ -124,8 +124,8 @@ def get_project_and_name(env_var_value: str) -> (str, str, str):
 
 
 def running_onprem() -> bool:
-    """Uses the JUPYTER_IMAGE_SPEC environment variable to check whether or not this application is running on-prem
+    """Uses the ON_PREM environment variable to check whether this application is running on a on-prem environment.
     Returns:
         True if running on-prem, else False.
     """
-    return "onprem" in os.environ.get("JUPYTER_IMAGE_SPEC", "")
+    return os.getenv("ON_PREM", 'False').lower() in ('true', '1')
