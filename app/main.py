@@ -8,6 +8,7 @@ from app import __version__
 from app.types import EncryptionRequest, EncryptionResponse
 from aes_pkcs5.algorithms.aes_ecb_pkcs5_padding import AESECBPKCS5Padding
 from google.cloud.secretmanager import SecretManagerServiceClient
+from google.auth.exceptions import GoogleAuthError
 
 app = FastAPI()
 
@@ -49,7 +50,7 @@ def health_readiness():
 def get_sm_client() -> SecretManagerServiceClient:
     try:
         return SecretManagerServiceClient()
-    except:
+    except GoogleAuthError:
         logger.info("Secret Manager Client is not available")
 
 
