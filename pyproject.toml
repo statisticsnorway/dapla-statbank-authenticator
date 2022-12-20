@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dapla-statbank-authenticator"
-version = "0.1.0"
+version = "0.1.2"
 description = "A template repository for Python microservices targeting Kuberntes deployment"
 authors = ["Statistics Norway <mmw@ssb.no>"]
 license = "Apache-2.0"
