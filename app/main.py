@@ -8,6 +8,7 @@ from app import __version__
 from app.types import EncryptionRequest, EncryptionResponse
 from aes_pkcs5.algorithms.aes_ecb_pkcs5_padding import AESECBPKCS5Padding
 from google.cloud.secretmanager import SecretManagerServiceClient
+from google.auth.exceptions import DefaultCredentialsError
 
 app = FastAPI()
 
@@ -47,7 +48,10 @@ def health_readiness():
 
 
 def get_sm_client() -> SecretManagerServiceClient:
-    return SecretManagerServiceClient()
+    try:
+        return SecretManagerServiceClient()
+    except DefaultCredentialsError:
+        logger.info("Secret Manager Client is not available")
 
 
 @app.post("/encrypt", status_code=200, response_model=EncryptionResponse)
