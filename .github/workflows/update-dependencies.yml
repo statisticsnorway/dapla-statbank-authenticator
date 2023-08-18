@@ -29,3 +29,4 @@ jobs:
         with:
             token: ${{ secrets.GITHUB_TOKEN }}
             update-command: "poetry up --latest --no-interaction"
+            default-branch-name: "master"
