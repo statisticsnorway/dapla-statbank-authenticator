@@ -26,4 +26,4 @@ jobs:
         uses: NobodyXu/dependencies-autoupdate@v1.7
         with:
             token: ${{ secrets.GITHUB_TOKEN }}
-            update-command: "'poetry up --latest --no-interaction && poetry run pytest'"
+            update-command: "poetry up --latest --no-interaction"
