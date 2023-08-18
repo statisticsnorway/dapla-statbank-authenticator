@@ -9,23 +9,25 @@ repository = "https://github.com/statisticsnorway/dapla-statbank-authenticator"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-fastapi = "^0.78.0"
-uvicorn = {extras = ["standard"], version = "^0.17.6"}
-gunicorn = "^20.1.0"
-python-json-logger = "^2.0.2"
-prometheus-fastapi-instrumentator = "^5.8.1"
-aes-pkcs5 = "^0.1.1"
-google-cloud-secret-manager = "^2.12.4"
+fastapi = "^0.101.1"
+uvicorn = { extras = ["standard"], version = "^0.23.2" }
+gunicorn = "^21.2.0"
+python-json-logger = "^2.0.7"
+prometheus-fastapi-instrumentator = "^6.1.0"
+aes-pkcs5 = "^1.0.2"
+google-cloud-secret-manager = "^2.16.3"
 
-[tool.poetry.dev-dependencies]
-pre-commit = "^2.19.0"
-black = "^22.3.0"
-pytest = "^7.1.2"
-pytest-mock = "^3.7.0"
-pytest-cov = "^3.0.0"
-pycrunch-engine = "^1.4"
-requests = "^2.27.1"
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.3.3"
+black = "^23.7.0"
+pytest = "^7.4.0"
+pytest-mock = "^3.11.1"
+pytest-cov = "^4.1.0"
+pycrunch-engine = "^1.5.2"
+requests = "^2.31.0"
 bump2version = "^1.0.1"
+toml = "^0.10.2"
+httpx = "^0.24.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
