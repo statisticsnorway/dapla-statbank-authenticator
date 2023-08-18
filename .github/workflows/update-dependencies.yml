@@ -25,7 +25,8 @@ jobs:
       - name: Install poetry up plugin
         run: poetry self add poetry-plugin-up
       - name: Run auto dependency update
-        uses: NobodyXu/dependencies-autoupdate@v1.7
+        uses: mmwinther/dependencies-autoupdate@main
         with:
             token: ${{ secrets.GITHUB_TOKEN }}
             update-command: "poetry up --latest --no-interaction"
+            default-branch-name: "master"
