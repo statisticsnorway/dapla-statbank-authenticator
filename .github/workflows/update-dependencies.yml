@@ -1,0 +1,28 @@
+name: Update dependencies
+
+on:
+  schedule:
+    # 07:00 on Fridays
+    - cron: '0 7 * * Fri'
+  workflow_dispatch:
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v1
+        with:
+          python-version: "3.11"
+      - uses: Gr1N/setup-poetry@v8
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pypoetry/virtualenvs
+          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
+      - name: Print Poetry version
+        run: poetry --version
+      - name: Run auto dependency update
+        uses: NobodyXu/dependencies-autoupdate@v1.7
+        with:
+            token: ${{ secrets.GITHUB_TOKEN }}
+            update-command: "'poetry up --latest --no-interaction && poetry run pytest'"
