@@ -19,8 +19,8 @@ google-cloud-secret-manager = "^2.16.4"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.5.0"
-black = "^23.10.0"
-pytest = "^7.4.2"
+black = "^23.10.1"
+pytest = "^7.4.3"
 pytest-mock = "^3.12.0"
 pytest-cov = "^4.1.0"
 pycrunch-engine = "^1.6.2"
