@@ -9,7 +9,7 @@ repository = "https://github.com/statisticsnorway/dapla-statbank-authenticator"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-fastapi = "^0.101.1"
+fastapi = "^0.109.1"
 uvicorn = { extras = ["standard"], version = "^0.23.2" }
 gunicorn = "^21.2.0"
 python-json-logger = "^2.0.7"
