@@ -11,7 +11,7 @@ repository = "https://github.com/statisticsnorway/dapla-statbank-authenticator"
 python = "^3.9"
 fastapi = "^0.101.1"
 uvicorn = { extras = ["standard"], version = "^0.23.2" }
-gunicorn = "^21.2.0"
+gunicorn = "^22.0.0"
 python-json-logger = "^2.0.7"
 prometheus-fastapi-instrumentator = "^6.1.0"
 aes-pkcs5 = "^1.0.2"
