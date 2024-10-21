@@ -1,0 +1,133 @@
+on:
+  release:
+    types: [ published ]
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - "**/*.md"
+      - ".gitignore"
+  # TODO: Remove when finished testing
+  workflow_dispatch:
+
+env:
+  # REGISTRY: europe-north1-docker.pkg.dev/${{ secrets.GAR_PROJECT_ID }}/dapla-stat-docker/dapla-statbank-authenticator
+  IMAGE: dapla-statbank-authenticator
+
+jobs:
+  setup-build-push-deploy:
+    name: Set up variables to build/push or deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    outputs:
+      nais-image: ${{steps.image-tag.outputs.nais_image}}
+      nais-cluster: ${{steps.nais-deploy-vars.outputs.cluster}}
+      nais-config-path: ${{steps.nais-deploy-vars.outputs.nais_config_path}}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate image tags
+        id: image-tag
+        run: |
+          if [ ${{ github.event_name }} == "release" ]; then
+            RELEASE_VERSION=${GITHUB_REF#refs/*/}
+            semver=${IMAGE}:v${RELEASE_VERSION}
+
+            ## NAIS image is the image used by NAIS for deployment
+            echo "nais_image=${semver}" >> "$GITHUB_OUTPUT"
+          else
+            git_sha_short="$(git rev-parse --short ${{github.sha}})"
+            current_sha_tag=${IMAGE}:${{github.event.repository.default_branch}}-$git_sha_short
+
+            ## NAIS image is the image used by NAIS for deployment
+            echo "nais_image=${current_sha_tag}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate NAIS deploy variables
+        id: nais-deploy-vars
+        run: |
+          if [[ ${{github.event_name}} == "release" ]]; then
+            echo "cluster=prod" >> "$GITHUB_OUTPUT"
+            echo "nais_config_path=.nais/prod.yaml" >> "$GITHUB_OUTPUT"
+          else
+            echo "cluster=test" >> "$GITHUB_OUTPUT"
+            echo "nais_config_path=.nais/test.yaml" >> "$GITHUB_OUTPUT"
+          fi
+
+  build-push:
+    name: Build and push to registries
+    # If triggering event is release, the commits on 'master' should build
+    # the image
+    needs: setup-build-push-deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # - name: Authenticate to Google Cloud
+      #   id: auth
+      #   uses: google-github-actions/auth@v2
+      #   with:
+      #     workload_identity_provider: "projects/${{ secrets.GAR_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/gh-actions/providers/gh-actions"
+      #     service_account: "gh-actions-dapla-stat@${{ secrets.GAR_PROJECT_ID }}.iam.gserviceaccount.com"
+      #     token_format: access_token
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+
+      # - name: Login to Artifact Registry
+      #   uses: docker/login-action@v3
+      #   with:
+      #     registry: ${{ env.REGISTRY }}
+      #     username: "oauth2accesstoken"
+      #     password: "${{ steps.auth.outputs.access_token }}"
+
+      - name: Docker meta
+        id: docker_metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE }}
+
+      # - name: Build and push docker image to Artifact Registry
+      #   id: docker_build
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: .
+      #     file: Dockerfile
+      #     push: true
+      #     tags: ${{ needs.setup-build-push-deploy.outputs.tags }}
+      #     labels: ${{ steps.docker_metadata.outputs.labels }}
+
+      - name: Build and push image to NAIS Artifact Repository
+        uses: nais/docker-build-push@v0
+        id: docker-push
+        with:
+          team: dapla-stat
+          tag: ${{ needs.setup-build-push-deploy.outputs.nais-image }}
+          project_id: ${{ secrets.NAIS_MANAGEMENT_PROJECT_ID }} # required, but is defined as an organization variable
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }} # required, but is defined as an organization secret
+
+  deploy:
+    name: Deploy to NAIS cluster
+    runs-on: ubuntu-latest
+    permissions:
+      contents: "read"
+      id-token: "write"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: ${{ needs.setup-build-push-deploy.outputs.nais-cluster }}
+          RESOURCE: ${{ needs.setup-build-push-deploy.outputs.nais-config-path }}
+          VAR: image=${{ needs.build-push.steps.docker-push.outputs.image }}
+          DEPLOY_SERVER: deploy.ssb.cloud.nais.io:443

@@ -1,0 +1,35 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: dapla-statbank-authenticator
+  namespace: dapla-stat
+spec:
+  image: {{image}}
+  port: 8080
+  ttl: 3h
+
+  replicas:
+    max: 1
+    min: 1
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+  envFrom:
+    - secret: dapla-statbank-authenticator-cipher-key
+
+  liveness:
+    path: /health
+    port: 8080
+  readiness:
+    path: /health
+    port: 8080
+
+  prometheus:
+    enabled: true
+    path: /metrics
+
+  ingresses:
+    - https://statbank-authenticator.test.ssb.cloud.nais.io
