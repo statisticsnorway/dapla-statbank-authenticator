@@ -46,11 +46,6 @@ jobs:
           poetry install --no-interaction --with dev
           poetry run pytest
 
-      - name: Generate test coverage report
+      - name: Show test coverage
         run: |
-          poetry run pytest --cov --cov-report=xml
-
-      - name: Upload coverage report
-        uses: codecov/codecov-action@v3.1.4
-        with:
-          files: ./coverage.xml
+          poetry run pytest --cov
