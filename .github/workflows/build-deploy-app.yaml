@@ -112,12 +112,14 @@ jobs:
         with:
           team: dapla-stat
           tag: ${{ needs.setup-build-push-deploy.outputs.nais-image }}
-          project_id: ${{ secrets.NAIS_MANAGEMENT_PROJECT_ID }} # required, but is defined as an organization variable
-          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }} # required, but is defined as an organization secret
+          pull: false
+          project_id: ${{ secrets.NAIS_MANAGEMENT_PROJECT_ID }}
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
 
   deploy:
     name: Deploy to NAIS cluster
     runs-on: ubuntu-latest
+    needs: docker-push
     permissions:
       contents: "read"
       id-token: "write"
