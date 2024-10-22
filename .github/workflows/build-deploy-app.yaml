@@ -115,7 +115,7 @@ jobs:
         id: docker-push
         with:
           team: dapla-stat
-          tag: ${{ needs.setup-build-push-deploy.outputs.nais-image }}
+          tag: ${{ env.REGISTRY }}/${{ needs.setup-build-push-deploy.outputs.nais-image }}
           pull: false
           project_id: ${{ secrets.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
