@@ -68,9 +68,6 @@ jobs:
       contents: read
       id-token: write
 
-    outputs:
-      pushed-image: ${{steps.docker-push.outputs.image}}
-
     steps:
       - uses: actions/checkout@v4
 
@@ -136,5 +133,5 @@ jobs:
         env:
           CLUSTER: ${{ needs.setup-build-push-deploy.outputs.nais-cluster }}
           RESOURCE: ${{ needs.setup-build-push-deploy.outputs.nais-config-path }}
-          VAR: image=${{ needs.build-push.outputs.pushed-image }}
+          VAR: image=${{ needs.setup-build-push-deploy.outputs.nais-image }}
           DEPLOY_SERVER: deploy.ssb.cloud.nais.io:443
