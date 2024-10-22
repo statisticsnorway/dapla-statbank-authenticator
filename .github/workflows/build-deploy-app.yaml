@@ -50,6 +50,8 @@ jobs:
       - name: Generate NAIS deploy variables
         id: nais-deploy-vars
         run: |
+          set -x
+
           if [[ ${{github.event_name}} == "release" ]]; then
             echo "cluster=prod" >> "$GITHUB_OUTPUT"
             echo "nais_config_path=.nais/prod.yaml" >> "$GITHUB_OUTPUT"
@@ -57,6 +59,8 @@ jobs:
             echo "cluster=test" >> "$GITHUB_OUTPUT"
             echo "nais_config_path=.nais/test.yaml" >> "$GITHUB_OUTPUT"
           fi
+
+          set +x
 
   build-push:
     name: Build and push to registries
