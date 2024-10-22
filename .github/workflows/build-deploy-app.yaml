@@ -30,7 +30,7 @@ jobs:
         id: image-tag
         run: |
 
-          export REGISTRY="europe-north1-docker.pkg.dev/${{ secrets.NAIS_MANAGEMENT_PROJECT_ID }}/dapla-stat/dapla-statbank-authenticator"
+          export REGISTRY="europe-north1-docker.pkg.dev/${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}/dapla-stat/dapla-statbank-authenticator"
           export IMAGE="dapla-statbank-authenticator"
 
           set -x
