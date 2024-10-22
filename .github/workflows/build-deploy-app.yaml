@@ -33,6 +33,8 @@ jobs:
       - name: Generate image tags
         id: image-tag
         run: |
+          set -x
+
           if [ ${{ github.event_name }} == "release" ]; then
             RELEASE_VERSION=${GITHUB_REF#refs/*/}
             semver=${REGISTRY}/${IMAGE}:v${RELEASE_VERSION}
@@ -46,6 +48,8 @@ jobs:
             ## NAIS image is the image used by NAIS for deployment
             echo "nais_image=${current_sha_tag}" >> "$GITHUB_OUTPUT"
           fi
+
+          set +x
 
       - name: Generate NAIS deploy variables
         id: nais-deploy-vars
