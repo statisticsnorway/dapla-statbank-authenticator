@@ -10,10 +10,6 @@ on:
       - "**/*.md"
       - ".gitignore"
 
-env:
-  REGISTRY: europe-north1-docker.pkg.dev/${{ secrets.NAIS_MANAGEMENT_PROJECT_ID }}/dapla-stat/dapla-statbank-authenticator
-  IMAGE: dapla-statbank-authenticator
-
 jobs:
   setup-build-push-deploy:
     name: Set up variables to build/push or deploy
@@ -33,17 +29,21 @@ jobs:
       - name: Generate image tags
         id: image-tag
         run: |
+
+          export REGISTRY="europe-north1-docker.pkg.dev/${{ secrets.NAIS_MANAGEMENT_PROJECT_ID }}/dapla-stat/dapla-statbank-authenticator"
+          export IMAGE="dapla-statbank-authenticator"
+
           set -x
 
           if [ ${{ github.event_name }} == "release" ]; then
             RELEASE_VERSION=${GITHUB_REF#refs/*/}
-            semver=${IMAGE}:v${RELEASE_VERSION}
+            semver=${REGISTRY}/${IMAGE}:v${RELEASE_VERSION}
 
             ## NAIS image is the image used by NAIS for deployment
             echo "nais_image=${semver}" >> "$GITHUB_OUTPUT"
           else
             git_sha_short="$(git rev-parse --short ${{github.sha}})"
-            current_sha_tag=${IMAGE}:${{github.event.repository.default_branch}}-$git_sha_short
+            current_sha_tag=${REGISTRY}/${IMAGE}:${{github.event.repository.default_branch}}-$git_sha_short
 
             ## NAIS image is the image used by NAIS for deployment
             echo "nais_image=${current_sha_tag}" >> "$GITHUB_OUTPUT"
@@ -115,7 +115,7 @@ jobs:
         id: docker-push
         with:
           team: dapla-stat
-          tag: ${{ env.REGISTRY }}/${{ needs.setup-build-push-deploy.outputs.nais-image }}
+          tag: ${{ needs.setup-build-push-deploy.outputs.nais-image }}
           pull: false
           project_id: ${{ secrets.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
@@ -137,5 +137,5 @@ jobs:
         env:
           CLUSTER: ${{ needs.setup-build-push-deploy.outputs.nais-cluster }}
           RESOURCE: ${{ needs.setup-build-push-deploy.outputs.nais-config-path }}
-          VAR: image=${{ env.REGISTRY }}/${{ needs.setup-build-push-deploy.outputs.nais-image }}
+          VAR: image=${{ needs.setup-build-push-deploy.outputs.nais-image }}
           DEPLOY_SERVER: deploy.ssb.cloud.nais.io:443
