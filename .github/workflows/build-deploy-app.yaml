@@ -119,7 +119,7 @@ jobs:
   deploy:
     name: Deploy to NAIS cluster
     runs-on: ubuntu-latest
-    needs: docker-push
+    needs: build-push
     permissions:
       contents: "read"
       id-token: "write"
