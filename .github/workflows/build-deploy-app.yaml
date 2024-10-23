@@ -64,7 +64,7 @@ jobs:
             echo "nais_config_path=.nais/test.yaml" >> "$GITHUB_OUTPUT"
           fi
 
-  build-push:
+  build-push-deploy:
     name: Build and push to registries
     # If triggering event is release, the commits on 'master' should build
     # the image
@@ -73,9 +73,6 @@ jobs:
     permissions:
       contents: read
       id-token: write
-
-    outputs:
-      pushed-image: ${{ steps.docker-push.outputs.image }}
 
     steps:
       - uses: actions/checkout@v4
@@ -125,22 +122,10 @@ jobs:
           project_id: ${{ secrets.NAIS_MANAGEMENT_PROJECT_ID }}
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
 
-  deploy:
-    name: Deploy to NAIS cluster
-    runs-on: ubuntu-latest
-    needs:
-      - setup-build-push-deploy
-      - build-push
-    permissions:
-      contents: "read"
-      id-token: "write"
-    steps:
-      - uses: actions/checkout@v4
-
       - name: Deploy
         uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: ${{ needs.setup-build-push-deploy.outputs.nais-cluster }}
           RESOURCE: ${{ needs.setup-build-push-deploy.outputs.nais-config-path }}
-          IMAGE: ${{ env.REGISTRY}}/${{ needs.build-push.outputs.pushed-image }}
+          IMAGE: ${{ env.REGISTRY}}/${{ steps.docker-push.outputs.image }}
           DEPLOY_SERVER: deploy.ssb.cloud.nais.io:443
