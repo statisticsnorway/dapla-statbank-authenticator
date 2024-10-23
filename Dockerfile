@@ -19,7 +19,7 @@ RUN addgroup -S $GROUPNAME && \
 RUN apk update && apk upgrade && \
     apk add gcc git curl linux-headers musl-dev libffi-dev
 
-RUN chmod 777 "$HOME/.cache"
+RUN mkdir -m 777 "$HOME/.cache"
 
 USER $UID
 WORKDIR "/home/$USERNAME"
