@@ -19,6 +19,8 @@ RUN addgroup -S $GROUPNAME && \
 RUN apk update && apk upgrade && \
     apk add gcc git curl linux-headers musl-dev libffi-dev
 
+# The user needs to be able to write to this directory so that
+# poetry can create a venv cache here
 RUN mkdir -m 777 "$HOME/.cache"
 
 USER $UID
