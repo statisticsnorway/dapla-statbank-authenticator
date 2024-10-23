@@ -139,5 +139,5 @@ jobs:
         env:
           CLUSTER: ${{ needs.setup-build-push-deploy.outputs.nais-cluster }}
           RESOURCE: ${{ needs.setup-build-push-deploy.outputs.nais-config-path }}
-          VAR: image=${{ env.REGISTRY}}/${{ needs.setup-build-push-deploy.outputs.nais-image }}
+          IMAGE: ${{ env.REGISTRY}}/${{ needs.setup-build-push-deploy.outputs.nais-image }}
           DEPLOY_SERVER: deploy.ssb.cloud.nais.io:443
