@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - master
-      # TODO: Remove this when finished testing
-      - update-ci
     paths-ignore:
       - "**/*.md"
       - ".gitignore"
