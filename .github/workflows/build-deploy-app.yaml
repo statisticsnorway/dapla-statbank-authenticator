@@ -65,7 +65,7 @@ jobs:
           fi
 
   build-push-deploy:
-    name: Build and push to registries
+    name: Build image, push to registries and deploy image
     # If triggering event is release, the commits on 'master' should build
     # the image
     needs: setup-build-push-deploy
