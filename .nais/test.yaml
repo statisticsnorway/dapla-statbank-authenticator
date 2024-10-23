@@ -21,15 +21,17 @@ spec:
     - secret: dapla-statbank-authenticator-cipher-key
 
   liveness:
-    path: /health/liveness
+    path: "/health/liveness"
     port: 8080
+    initialDelay: 10
   readiness:
-    path: /health/readiness
+    path: "/health/readiness"
     port: 8080
+    initialDelay: 5
 
   prometheus:
     enabled: true
-    path: /metrics
+    path: "/metrics"
 
   ingresses:
     - https://statbank-authenticator.test.ssb.cloud.nais.io
