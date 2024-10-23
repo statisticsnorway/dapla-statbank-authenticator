@@ -13,6 +13,9 @@ on:
 env:
   REGISTRY: europe-north1-docker.pkg.dev/${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}/dapla-stat/dapla-statbank-authenticator
 
+concurrency:
+  cancel-in-progress: true
+
 jobs:
   setup-build-push-deploy:
     name: Set up variables to build/push or deploy
