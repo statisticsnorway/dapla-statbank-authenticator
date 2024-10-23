@@ -127,5 +127,5 @@ jobs:
         env:
           CLUSTER: ${{ needs.setup-build-push-deploy.outputs.nais-cluster }}
           RESOURCE: ${{ needs.setup-build-push-deploy.outputs.nais-config-path }}
-          IMAGE: ${{ env.REGISTRY}}/${{ steps.docker-push.outputs.image }}
+          IMAGE: ${{ steps.docker-push.outputs.image }}
           DEPLOY_SERVER: deploy.ssb.cloud.nais.io:443
