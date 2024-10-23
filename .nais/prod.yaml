@@ -34,4 +34,4 @@ spec:
     path: "/metrics"
 
   ingresses:
-    - https://statbank-authenticator.intern.test.ssb.no
+    - https://statbank-authenticator.intern.ssb.no
