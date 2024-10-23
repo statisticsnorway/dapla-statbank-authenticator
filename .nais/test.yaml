@@ -21,10 +21,10 @@ spec:
     - secret: dapla-statbank-authenticator-cipher-key
 
   liveness:
-    path: /health
+    path: /health/liveness
     port: 8080
   readiness:
-    path: /health
+    path: /health/readiness
     port: 8080
 
   prometheus:
