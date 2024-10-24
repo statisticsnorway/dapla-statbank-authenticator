@@ -14,8 +14,10 @@ spec:
 
   resources:
     requests:
-      cpu: 100m
+      cpu: 20m
       memory: 128Mi
+    limits:
+     memory: 256Mi
 
   envFrom:
     - secret: dapla-statbank-authenticator-cipher-key
