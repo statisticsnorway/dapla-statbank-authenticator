@@ -91,6 +91,7 @@ jobs:
 
       - name: Deploy
         uses: nais/deploy/actions/deploy@v2
+        if: ${{ steps.docker-push.outcome == 'success' }}
         env:
           CLUSTER: ${{ needs.setup-build-push-deploy.outputs.nais-cluster }}
           RESOURCE: ${{ needs.setup-build-push-deploy.outputs.nais-config-path }}
