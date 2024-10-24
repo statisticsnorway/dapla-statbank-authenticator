@@ -1,0 +1,99 @@
+on:
+  release:
+    types: [ published ]
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - "**/*.md"
+      - ".gitignore"
+
+env:
+  REGISTRY: europe-north1-docker.pkg.dev/${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}/dapla-stat/dapla-statbank-authenticator
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  setup-build-push-deploy:
+    name: Set up variables to build/push or deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    outputs:
+      nais-image: ${{steps.image-tag.outputs.nais_image}}
+      nais-cluster: ${{steps.nais-deploy-vars.outputs.cluster}}
+      nais-config-path: ${{steps.nais-deploy-vars.outputs.nais_config_path}}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate image tags
+        id: image-tag
+        run: |
+
+          export IMAGE="dapla-statbank-authenticator"
+
+          set -x
+
+          if [ ${{ github.event_name }} == "release" ]; then
+            RELEASE_VERSION=${GITHUB_REF#refs/*/}
+            semver=${IMAGE}:v${RELEASE_VERSION}
+
+            ## NAIS image is the image used by NAIS for deployment
+            echo "nais_image=${semver}" >> "$GITHUB_OUTPUT"
+          else
+            git_sha_short="$(git rev-parse --short ${{github.sha}})"
+            current_sha_tag=${IMAGE}:${{github.event.repository.default_branch}}-$git_sha_short
+
+            ## NAIS image is the image used by NAIS for deployment
+            echo "nais_image=${current_sha_tag}" >> "$GITHUB_OUTPUT"
+          fi
+
+          set +x
+
+      - name: Generate NAIS deploy variables
+        id: nais-deploy-vars
+        run: |
+          if [[ ${{github.event_name}} == "release" ]]; then
+            echo "cluster=prod" >> "$GITHUB_OUTPUT"
+            echo "nais_config_path=.nais/prod.yaml" >> "$GITHUB_OUTPUT"
+          else
+            echo "cluster=test" >> "$GITHUB_OUTPUT"
+            echo "nais_config_path=.nais/test.yaml" >> "$GITHUB_OUTPUT"
+          fi
+
+  build-push-deploy:
+    name: Build image, push to registries and deploy image
+    # If triggering event is release, the commits on 'master' should build
+    # the image
+    needs: setup-build-push-deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and push image to NAIS Artifact Repository
+        uses: nais/docker-build-push@v0
+        id: docker-push
+        with:
+          team: dapla-stat
+          tag: ${{ needs.setup-build-push-deploy.outputs.nais-image }}
+          pull: false
+          project_id: ${{ secrets.NAIS_MANAGEMENT_PROJECT_ID }}
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+
+      - name: Deploy
+        uses: nais/deploy/actions/deploy@v2
+        if: ${{ steps.docker-push.outcome == 'success' }}
+        env:
+          CLUSTER: ${{ needs.setup-build-push-deploy.outputs.nais-cluster }}
+          RESOURCE: ${{ needs.setup-build-push-deploy.outputs.nais-config-path }}
+          IMAGE: ${{ steps.docker-push.outputs.image }}
+          DEPLOY_SERVER: deploy.ssb.cloud.nais.io:443

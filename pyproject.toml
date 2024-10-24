@@ -6,6 +6,7 @@ authors = ["Statistics Norway <mmw@ssb.no>"]
 license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/statisticsnorway/dapla-statbank-authenticator"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.9"
