@@ -6,7 +6,6 @@ metadata:
 spec:
   image: {{image}}
   port: 8080
-  ttl: 3h
 
   replicas:
     max: 1
