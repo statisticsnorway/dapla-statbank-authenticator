@@ -1,4 +1,4 @@
-FROM python:3.12.3-alpine
+FROM python:3.12.7-alpine
 
 # Setup env
 ENV LANG=C.UTF-8
@@ -21,7 +21,7 @@ RUN apk update && apk upgrade && \
 
 # The user needs to be able to write to this directory so that
 # poetry can create a venv cache here
-RUN mkdir -m 777 "$HOME/.cache"
+RUN chmod 777 "$HOME/.cache"
 
 USER $UID
 WORKDIR "/home/$USERNAME"
