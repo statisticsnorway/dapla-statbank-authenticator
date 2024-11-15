@@ -132,3 +132,7 @@ index.pb
 .idea
 *.iml
 .vscode/
+
+# Direnv
+.envrc
+.direnv/
