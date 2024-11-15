@@ -25,6 +25,7 @@
             poetry
             python312
             ruff-lsp
+            yaml-language-server
           ];
         };
 

@@ -1,0 +1,21 @@
+name: Nix tests
+
+on:
+  pull_request:
+
+jobs:
+  nix-tests:
+    name: nix-tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name:
+        uses: DeterminateSystems/nix-installer-action@main
+      - run: nix build .
+
+      - name: Test formatting of nix files
+        run: |
+          nix fmt -- -c .
