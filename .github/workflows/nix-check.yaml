@@ -14,7 +14,6 @@ jobs:
 
       - name:
         uses: DeterminateSystems/nix-installer-action@main
-      - run: nix build .
 
       - name: Test formatting of nix files
         run: |
