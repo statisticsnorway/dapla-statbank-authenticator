@@ -1,7 +1,7 @@
 apiVersion: "monitoring.coreos.com/v1"
 kind: PrometheusRule
 metadata:
-  name: alert-statbank-authenticator
+  name: alert-dapla-statbank-authenticator
   namespace: dapla-stat
   labels:
     team: dapla-stat
@@ -9,67 +9,67 @@ spec:
   groups:
     - name: dapla-stat
       rules:
-        # This alert checks if no replicas of statbank-authenticator are available, indicating the service is unavailable.
+        # This alert checks if no replicas of dapla-statbank-authenticator are available, indicating the service is unavailable.
         - alert: StatbankAuthenticatorUnavailable
-          expr: kube_deployment_status_replicas_available{deployment="statbank-authenticator"} == 0
+          expr: kube_deployment_status_replicas_available{deployment="dapla-statbank-authenticator"} == 0
           for: 1m
           annotations:
-            title: "statbank-authenticator is unavailable"
+            title: "dapla-statbank-authenticator is unavailable"
             consequence: "The service is unavailable to users. Immediate investigation required."
             action: "Check the deployment status and logs for issues."
           labels:
-            service: statbank-authenticator
+            service: dapla-statbank-authenticator
             namespace: dapla-stat
             severity: critical
 
         # This alert detects high CPU usage by calculating the CPU time used over 5 minutes.
         - alert: HighCPUUsage
-          expr: rate(process_cpu_seconds_total{app="statbank-authenticator"}[5m]) > 0.8
+          expr: rate(process_cpu_seconds_total{app="dapla-statbank-authenticator"}[5m]) > 0.8
           for: 5m
           annotations:
             title: "High CPU usage detected"
             consequence: "The service might experience performance degradation."
             action: "Investigate the cause of high CPU usage and optimize if necessary."
           labels:
-            service: statbank-authenticator
+            service: dapla-statbank-authenticator
             namespace: dapla-stat
             severity: warning
 
         # This alert checks if memory usage exceeds 90% of the 12GB limit, which could cause instability.
         - alert: HighMemoryUsage
-          expr: sum by (namespace, pod) (container_memory_working_set_bytes{namespace="dapla-stat", pod=~"statbank-authenticator-.*"}) > 0.9 * sum by (namespace, pod) (kube_pod_container_resource_limits_memory_bytes{namespace="dapla-stat", pod=~"statbank-authenticator-.*"})
+          expr: sum by (namespace, pod) (container_memory_working_set_bytes{namespace="dapla-stat", pod=~"dapla-statbank-authenticator-.*"}) > 0.9 * sum by (namespace, pod) (kube_pod_container_resource_limits_memory_bytes{namespace="dapla-stat", pod=~"dapla-statbank-authenticator-.*"})
           for: 5m
           annotations:
             title: "High memory usage detected"
             consequence: "The service might experience instability due to high memory usage."
             action: "Check memory utilization and consider increasing resources or optimizing the service."
           labels:
-            service: statbank-authenticator
+            service: dapla-statbank-authenticator
             namespace: dapla-stat
             severity: warning
 
-        # This alert detects a high number of error logs in statbank-authenticator.
+        # This alert detects a high number of error logs in dapla-statbank-authenticator.
         - alert: HighNumberOfErrors
-          expr: (100 * sum by (app, namespace) (rate(log_messages_errors{app="statbank-authenticator", level=~"Error"}[3m])) / sum by (app, namespace) (rate(log_messages_total{app="statbank-authenticator"}[3m]))) > 10
+          expr: (100 * sum by (app, namespace) (rate(log_messages_errors{app="dapla-statbank-authenticator", level=~"Error"}[3m])) / sum by (app, namespace) (rate(log_messages_total{app="dapla-statbank-authenticator"}[3m]))) > 10
           for: 3m
           annotations:
-            title: "High number of errors logged in statbank-authenticator"
+            title: "High number of errors logged in dapla-statbank-authenticator"
             consequence: "The application is logging a significant number of errors."
             action: "Check the service logs for errors and address the root cause."
           labels:
-            service: statbank-authenticator
+            service: dapla-statbank-authenticator
             namespace: dapla-stat
             severity: critical
 
-        # This alert monitors the number of pod restarts for statbank-authenticator and triggers if more than 3 restarts occur within 15 minutes.
+        # This alert monitors the number of pod restarts for dapla-statbank-authenticator and triggers if more than 3 restarts occur within 15 minutes.
         - alert: HighPodRestarts
-          expr: increase(kube_pod_container_status_restarts_total{namespace="dapla-stat", app="statbank-authenticator"}[15m]) > 3
+          expr: increase(kube_pod_container_status_restarts_total{namespace="dapla-stat", app="dapla-statbank-authenticator"}[15m]) > 3
           for: 15m
           annotations:
             title: "High number of pod restarts"
             consequence: "The service may be unstable or misconfigured."
             action: "Investigate the cause of pod restarts and fix configuration or resource issues."
           labels:
-            service: statbank-authenticator
+            service: dapla-statbank-authenticator
             namespace: dapla-stat
             severity: warning
