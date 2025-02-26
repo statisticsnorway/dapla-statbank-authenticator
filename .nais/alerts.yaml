@@ -21,6 +21,8 @@ spec:
             service: dapla-statbank-authenticator
             namespace: dapla-stat
             severity: critical
+            alertmanager_custom_config: dapla-stat
+            alert_type: custom
 
         # This alert detects high CPU usage by calculating the CPU time used over 5 minutes.
         - alert: HighCPUUsage
@@ -34,6 +36,8 @@ spec:
             service: dapla-statbank-authenticator
             namespace: dapla-stat
             severity: warning
+            alertmanager_custom_config: dapla-stat
+            alert_type: custom
 
         # This alert checks if memory usage exceeds 90% of the 12GB limit, which could cause instability.
         - alert: HighMemoryUsage
@@ -47,6 +51,8 @@ spec:
             service: dapla-statbank-authenticator
             namespace: dapla-stat
             severity: warning
+            alertmanager_custom_config: dapla-stat
+            alert_type: custom
 
         # This alert detects a high number of error logs in dapla-statbank-authenticator.
         - alert: HighNumberOfErrors
@@ -60,6 +66,8 @@ spec:
             service: dapla-statbank-authenticator
             namespace: dapla-stat
             severity: critical
+            alertmanager_custom_config: dapla-stat
+            alert_type: custom
 
         # This alert monitors the number of pod restarts for dapla-statbank-authenticator and triggers if more than 3 restarts occur within 15 minutes.
         - alert: HighPodRestarts
@@ -73,3 +81,5 @@ spec:
             service: dapla-statbank-authenticator
             namespace: dapla-stat
             severity: warning
+            alertmanager_custom_config: dapla-stat
+            alert_type: custom
