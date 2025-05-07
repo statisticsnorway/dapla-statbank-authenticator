@@ -36,23 +36,6 @@ Other endpoints are:
 
 ### Troubleshooting
 
-#### Incorrect module discovered by pytest
-
-If, when running `poetry run pytest` you get errors like below
-
-```shell
-====================================================================================================== ERRORS =======================================================================================================
-____________________________________________________________________ ERROR collecting lib/python3.8/site-packages/sniffio/_tests/test_sniffio.py ____________________________________________________________________
-import file mismatch:
-imported module 'sniffio._tests.test_sniffio' has this __file__ attribute:
-  /Users/mmwinther/Library/Caches/pypoetry/virtualenvs/microservice-template-test-FTpaP-8S-py3.9/lib/python3.9/site-packages/sniffio/_tests/test_sniffio.py
-which is not the same as the test file we want to collect:
-  /Users/mmwinther/code/microservice-template-test/lib/python3.8/site-packages/sniffio/_tests/test_sniffio.py
-HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
-```
-
-Then run `rm -rf lib/` to clear the `pytest` cache
-
 #### Incompatible python version warning
 
 If you get a warning like below
