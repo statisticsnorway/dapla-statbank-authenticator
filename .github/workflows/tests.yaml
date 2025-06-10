@@ -11,7 +11,7 @@ jobs:
     env:
       FORCE_COLOR: "1"
       PRE_COMMIT_COLOR: "always"
-      PYTHON_VERSION: "3.12"
+      PYTHON_VERSION: "3.13"
 
     steps:
       - name: Check out the repository

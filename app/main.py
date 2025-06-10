@@ -1,8 +1,9 @@
 import logging.config
 import os
 
+from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, HTTPException
-from pythonjsonlogger import jsonlogger
+from pythonjsonlogger import json
 from prometheus_fastapi_instrumentator import Instrumentator
 from app import __version__
 from app.types import EncryptionRequest, EncryptionResponse
@@ -10,14 +11,20 @@ from aes_pkcs5.algorithms.aes_ecb_pkcs5_padding import AESECBPKCS5Padding
 from google.cloud.secretmanager import SecretManagerServiceClient
 from google.auth.exceptions import DefaultCredentialsError
 
-app = FastAPI()
+@asynccontextmanager
+async def app_startup(app: FastAPI):
+    """Does some initial startup stuff"""
+    logger.info(f"Starting Statbank Authenticator version {__version__} ...")
+    yield
+
+app = FastAPI(lifespan=app_startup)
 
 # Logging
 # Get the loghandler and rename the field "levelname" to severity
 # for correct display of log level in Google Logging
 logger = logging.getLogger()
 handler = logger.handlers[0]
-formatter = jsonlogger.JsonFormatter(
+formatter = json.JsonFormatter(
     "%(asctime)s %(levelname)s %(threadName) %(module) %(funcName)s %(lineno)d  %(message)s",
     rename_fields={"levelname": "severity"},
 )
@@ -84,12 +91,6 @@ def encrypt(request: EncryptionRequest, sm_client: SecretManagerServiceClient = 
     return {
         "message": cipher.encrypt(request.message)
     }
-
-
-@app.on_event("startup")
-def app_startup():
-    """Does some initial startup stuff"""
-    logger.info(f"Starting Statbank Authenticator version {__version__} ...")
 
 
 def get_project_and_name(env_var_value: str) -> (str, str, str):
