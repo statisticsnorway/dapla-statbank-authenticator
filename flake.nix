@@ -23,7 +23,7 @@
           packages = with pkgs; [
             bump2version
             poetry
-            python312
+            python313
             ruff-lsp
             yaml-language-server
           ];
