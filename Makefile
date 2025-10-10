@@ -7,12 +7,11 @@ help:
 
 .PHONY: setup-dev
 setup-dev: ## Installs required packages for the app and tests
-	poetry install
+	uv sync 
 
 .PHONY: test
 test: ## Run tests
-	poetry install
-	poetry run pytest
+	uv run pytest
 
 .PHONY: run-dev
 run-dev: ## Run the app using gunicorn on your machine
@@ -26,7 +25,7 @@ run-docker-dev: ## Creates docker image from Dockerfile and runs the image
 
 .PHONY: setup-pre-commit
 setup-pre-commit: ## Installs Black and creates a pre-commit-hook to enforce code formatting
-	poetry run pre-commit install
+	uv run pre-commit install
 
 .PHONY: bump-version-patch
 bump-version-patch: ## Bump patch version, e.g. 0.0.1 -> 0.0.2.
