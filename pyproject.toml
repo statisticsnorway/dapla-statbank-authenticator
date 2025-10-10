@@ -1,35 +1,41 @@
-[tool.poetry]
+[project]
 name = "dapla-statbank-authenticator"
 version = "0.4.0"
 description = "A template repository for Python microservices targeting Kuberntes deployment"
-authors = ["Statistics Norway <mmw@ssb.no>"]
-license = "Apache-2.0"
+authors = [{ name = "Statistics Norway", email = "mmw@ssb.no" }]
+requires-python = "~=3.13.0"
 readme = "README.md"
-repository = "https://github.com/statisticsnorway/dapla-statbank-authenticator"
-package-mode = false
+license = "Apache-2.0"
+dependencies = [
+    "fastapi>=0.101.1",
+    "uvicorn[standard]>=0.23.2",
+    "gunicorn>=21.2.0",
+    "python-json-logger>=2.0.7",
+    "prometheus-fastapi-instrumentator>=6.1.0",
+    "aes-pkcs5>=1.0.2",
+    "google-cloud-secret-manager>=2.17.0",
+]
 
-[tool.poetry.dependencies]
-python = "^3.13"
-fastapi = ">=0.101.1"
-uvicorn = { extras = ["standard"], version = ">=0.23.2" }
-gunicorn = ">=21.2.0"
-python-json-logger = ">=2.0.7"
-prometheus-fastapi-instrumentator = ">=6.1.0"
-aes-pkcs5 = ">=1.0.2"
-google-cloud-secret-manager = ">=2.17.0"
+[project.urls]
+Repository = "https://github.com/statisticsnorway/dapla-statbank-authenticator"
 
-[tool.poetry.group.dev.dependencies]
-pre-commit = ">=3.5.0"
-black = ">=23.11.0"
-pytest = ">=7.4.3"
-pytest-mock = ">=3.12.0"
-pytest-cov = ">=4.1.0"
-pycrunch-engine = ">=1.6.2"
-requests = ">=2.31.0"
-bump2version = ">=1.0.1"
-toml = ">=0.10.2"
-httpx = ">=0.24.1"
+[dependency-groups]
+dev = [
+    "pre-commit>=3.5.0",
+    "black>=23.11.0",
+    "pytest>=7.4.3",
+    "pytest-mock>=3.12.0",
+    "pytest-cov>=4.1.0",
+    "pycrunch-engine>=1.6.2",
+    "requests>=2.31.0",
+    "bump2version>=1.0.1",
+    "toml>=0.10.2",
+    "httpx>=0.24.1",
+]
+
+[tool.uv]
+package = false
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
