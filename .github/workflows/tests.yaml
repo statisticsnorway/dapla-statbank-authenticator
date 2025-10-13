@@ -17,35 +17,17 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Setup python and uv
+        uses: astral-sh/setup-uv@v7
         with:
+          version: ">=0.8.19,<1.0.0"
           python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Upgrade pip
-        run: |
-          pip install --constraint=${{ github.workspace }}/.github/workflows/constraints.txt pip
-          pip --version
-
-      - name: Upgrade pip in virtual environments
-        shell: python
-        run: |
-          import os
-          import pip
-
-          with open(os.environ["GITHUB_ENV"], mode="a") as io:
-              print(f"VIRTUALENV_PIP={pip.__version__}", file=io)
-
-      - name: Install Poetry
-        run: |
-          pipx install --pip-args "-c ${{ github.workspace }}/.github/workflows/constraints.txt" poetry
-          poetry --version
 
       - name: Run python tests
         run: |
-          poetry install --no-interaction --with dev
-          poetry run pytest
+          uv sync
+          uv run pytest
 
       - name: Show test coverage
         run: |
-          poetry run pytest --cov
+          uv run pytest --cov

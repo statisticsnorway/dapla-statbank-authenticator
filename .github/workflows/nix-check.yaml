@@ -3,7 +3,7 @@ name: Nix tests
 on:
   pull_request:
     paths:
-      '**/*.nix'
+      - "**/*.nix"
 
 jobs:
   nix-tests:

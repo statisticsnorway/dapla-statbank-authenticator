@@ -1,40 +1,36 @@
-FROM python:3.13.4-alpine
+FROM ghcr.io/astral-sh/uv:bookworm-slim AS builder
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 
-# Setup env
-ENV LANG=C.UTF-8
-ENV LC_ALL=C.UTF-8
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONFAULTHANDLER=1
-ENV PIP_DISABLE_PIP_VERSION_CHECK=on
+# Configure the Python directory so it is consistent
+ENV UV_PYTHON_INSTALL_DIR=/python
+# Only use the managed Python version
+ENV UV_PYTHON_PREFERENCE=only-managed
 
-# Setup user & workspace
-ENV UID="1000"
-ENV USERNAME="statbank-authenticator"
-ENV GROUPNAME="statbank-auth"
-ENV HOME="/home/$USERNAME"
+# Install Python before the project for caching
+RUN uv python install 3.13
 
-RUN addgroup -S $GROUPNAME && \
-    adduser -S $USERNAME -G $GROUPNAME -u $UID
+WORKDIR /dist
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --frozen --no-install-project --no-dev --no-editable
+COPY . /dist
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --no-editable
 
-RUN apk update && apk upgrade && \
-    apk add gcc git curl linux-headers musl-dev libffi-dev
+FROM gcr.io/distroless/cc:debug
 
-# The user needs to be able to write to this directory so that
-# poetry can create a venv cache here
-RUN mkdir -m 777 "$HOME/.cache" || chmod 777 "$HOME/.cache"
+# Copy the Python version
+COPY --from=builder --chown=python:python /python /python
 
-USER $UID
-WORKDIR "/home/$USERNAME"
+WORKDIR /dist
+# Copy the application and logging config from the builder
+COPY --from=builder --chown=app:app /dist/.venv /dist/.venv
+COPY --from=builder --chown=app:app /dist/app /dist/app
 
-RUN pip install --upgrade pip && \
-    pip install poetry
-
-ENV PATH="$HOME/.local/bin:$PATH"
-
-COPY . .
-
-RUN poetry install --no-interaction --only main
+# Place executables in the environment at the front of the path
+ENV PATH="/dist/.venv/bin:$PATH"
 
 EXPOSE 8080
 
-ENTRYPOINT [ "poetry", "run", "gunicorn", "app.main:app", "-b", "0.0.0.0:8080", "-w", "1","-k", "uvicorn.workers.UvicornWorker", "-t", "0", "--log-config", "app/logging.config", "--log-level", "info"]
+ENTRYPOINT [ "gunicorn", "app.main:app", "-b", "0.0.0.0:8080", "-w", "1","-k", "uvicorn.workers.UvicornWorker", "-t", "0", "--log-config", "./app/logging.config", "--log-level", "info"]

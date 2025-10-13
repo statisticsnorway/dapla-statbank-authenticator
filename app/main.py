@@ -17,7 +17,13 @@ async def app_startup(app: FastAPI):
     logger.info(f"Starting Statbank Authenticator version {__version__} ...")
     yield
 
-app = FastAPI(lifespan=app_startup)
+app = FastAPI(
+    title="Statbank Authenticator",
+    version=__version__,
+    description="API for authenticating towards 'statistikkbanken'.",
+    lifespan=app_startup,
+    swagger_ui_parameters={"syntaxHighlight": {"theme": "obsidian"}}
+)
 
 # Logging
 # Get the loghandler and rename the field "levelname" to severity

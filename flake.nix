@@ -3,7 +3,7 @@
 
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs?ref=nixpkgs-unstable";
   };
 
   outputs = inputs @ {flake-parts, ...}:
@@ -18,13 +18,14 @@
         ...
       }: {
         devShells.default = pkgs.mkShell {
-          name = "statbank-authenticator env";
+          name = "statbank-authenticator";
 
           packages = with pkgs; [
             bump2version
             poetry
             python313
-            ruff-lsp
+            ruff
+            uv
             yaml-language-server
           ];
         };
