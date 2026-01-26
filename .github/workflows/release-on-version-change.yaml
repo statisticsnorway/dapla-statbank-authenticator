@@ -17,7 +17,9 @@ jobs:
         with:
           fetch-depth: 2
 
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v7.2.0
+        with:
+          python-version: "3.13"
 
       - name: Detect version changes
         id: detect
