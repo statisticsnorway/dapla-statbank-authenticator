@@ -5,6 +5,9 @@ on:
     paths:
       - "**/*.nix"
 
+permissions:
+  contents: read
+
 jobs:
   nix-tests:
     name: nix-tests
