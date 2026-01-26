@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 2
 
@@ -21,7 +21,7 @@ jobs:
 
       - name: Detect version changes
         id: detect
-        uses: salsify/action-detect-and-tag-new-version@v2
+        uses: salsify/action-detect-and-tag-new-version@v2.0.3
         with:
           version-command: uv version --short
           tag-template: "{VERSION}"
@@ -29,7 +29,7 @@ jobs:
 
       - name: Create GitHub release
         if: steps.detect.outputs.tag != ''
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v2.5.0
         with:
           tag_name: "${{ steps.detect.outputs.tag }}"
           name: "${{ steps.detect.outputs.tag }}"
