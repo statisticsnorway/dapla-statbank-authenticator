@@ -1,6 +1,6 @@
 [project]
 name = "dapla-statbank-authenticator"
-version = "0.5.2"
+version = "0.5.3"
 description = "A template repository for Python microservices targeting Kuberntes deployment"
 authors = [{ name = "Statistics Norway", email = "mmw@ssb.no" }]
 requires-python = "~=3.13.0"
@@ -12,8 +12,9 @@ dependencies = [
     "gunicorn>=24.1.1",
     "python-json-logger>=2.0.7",
     "prometheus-fastapi-instrumentator>=6.1.0",
+    "urllib3>=2.6.3",
     "aes-pkcs5>=1.0.2",
-    "google-cloud-secret-manager>=2.17.0",
+    "google-cloud-secret-manager>=2.26.0",
 ]
 
 [project.urls]
@@ -27,7 +28,7 @@ dev = [
     "pytest-mock>=3.12.0",
     "pytest-cov>=4.1.0",
     "pycrunch-engine>=1.6.2",
-    "requests>=2.31.0",
+    "requests>=2.32.5",
     "bump2version>=1.0.1",
     "toml>=0.10.2",
     "httpx>=0.24.1",
