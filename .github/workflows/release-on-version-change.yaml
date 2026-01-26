@@ -26,8 +26,6 @@ jobs:
         uses: salsify/action-detect-and-tag-new-version@v2.0.3
         with:
           version-command: uv version --short
-          tag-template: "{VERSION}"
-          tag-annotation-template: ""
 
       - name: Create GitHub release
         if: steps.detect.outputs.tag != ''
