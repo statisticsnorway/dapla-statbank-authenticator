@@ -1,0 +1,36 @@
+name: Release on version change
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: astral-sh/setup-uv@v3
+
+      - name: Detect version changes
+        id: detect
+        uses: salsify/action-detect-and-tag-new-version@v2
+        with:
+          version-command: uv version --short
+          tag-template: "{VERSION}"
+          tag-annotation-template: ""
+
+      - name: Create GitHub release
+        if: steps.detect.outputs.tag != ''
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "${{ steps.detect.outputs.tag }}"
+          name: "${{ steps.detect.outputs.tag }}"
+          generate_release_notes: true
