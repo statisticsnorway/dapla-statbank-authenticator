@@ -7,6 +7,15 @@ on:
     paths-ignore:
       - "**/*.md"
       - ".gitignore"
+  workflow_dispatch:
+    inputs:
+      nais_environment:
+        description: "NAIS environment to deploy"
+        type: choice
+        options:
+          - test
+          - prod
+        default: test
 
 env:
   REGISTRY: europe-north1-docker.pkg.dev/${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}/dapla-stat/dapla-statbank-authenticator
@@ -58,13 +67,16 @@ jobs:
       - name: Generate NAIS deploy variables
         id: nais-deploy-vars
         run: |
-          if [[ ${{github.event_name}} == "release" ]]; then
-            echo "cluster=prod" >> "$GITHUB_OUTPUT"
-            echo "nais_config_path=.nais/prod.yaml" >> "$GITHUB_OUTPUT"
-          else
-            echo "cluster=test" >> "$GITHUB_OUTPUT"
-            echo "nais_config_path=.nais/test.yaml" >> "$GITHUB_OUTPUT"
+          nais_environment="test"
+
+          if [[ ${{ github.event_name }} == "release" ]]; then
+            nais_environment="prod"
+          elif [[ ${{ github.event_name }} == "workflow_dispatch" ]]; then
+            nais_environment="${{ github.event.inputs.nais_environment }}"
           fi
+
+          echo "cluster=${nais_environment}" >> "$GITHUB_OUTPUT"
+          echo "nais_config_path=.nais/${nais_environment}.yaml" >> "$GITHUB_OUTPUT"
 
   build-push-deploy:
     name: Build image, push to registries and deploy image
