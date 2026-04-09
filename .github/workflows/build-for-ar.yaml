@@ -48,7 +48,7 @@ jobs:
 
     - name: Extract build metadata for Docker
       id: build_metadata
-      uses: docker/metadata-action@v5
+      uses: docker/metadata-action@v6
       with:
         images: ${{ env.REGISTRY }}/${{ env.TEAM_NAME }}-docker/${{ env.IMAGE_NAME }}
         tags: |
