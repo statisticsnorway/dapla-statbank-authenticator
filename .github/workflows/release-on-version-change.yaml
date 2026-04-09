@@ -29,7 +29,7 @@ jobs:
 
       - name: Create GitHub release
         if: steps.detect.outputs.tag != ''
-        uses: softprops/action-gh-release@v2.5.0
+        uses: softprops/action-gh-release@v2.6.1
         with:
           tag_name: "${{ steps.detect.outputs.tag }}"
           name: "${{ steps.detect.outputs.tag }}"
