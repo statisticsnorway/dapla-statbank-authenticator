@@ -38,7 +38,7 @@ jobs:
       nais-config-path: ${{steps.nais-deploy-vars.outputs.nais_config_path}}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Generate image tags
         id: image-tag
@@ -89,7 +89,7 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Build and push image to NAIS Artifact Repository
         uses: nais/docker-build-push@v0
