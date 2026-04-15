@@ -14,7 +14,7 @@ dependencies = [
     "prometheus-fastapi-instrumentator>=6.1.0",
     "urllib3>=2.6.3",
     "aes-pkcs5>=1.0.4",
-    "google-cloud-secret-manager>=2.26.0",
+    "google-cloud-secret-manager>=2.27.0",
     # Pinning these packages to newer version to avoid vulnerabilities
     "cryptography>=46.0.5",
     "pyasn1>=0.6.3",
