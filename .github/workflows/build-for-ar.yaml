@@ -62,7 +62,7 @@ jobs:
           type=raw,value=${{ env.TAG }}, enable=true
 
     - name: Build and push docker image to Artifact Registry
-      uses: docker/build-push-action@v7.1.0
+      uses: docker/build-push-action@v7.2.0
       with:
         provenance: false
         file: Dockerfile
