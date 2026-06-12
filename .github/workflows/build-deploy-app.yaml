@@ -38,7 +38,7 @@ jobs:
       nais-config-path: ${{steps.nais-deploy-vars.outputs.nais_config_path}}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Generate image tags
         id: image-tag
@@ -89,10 +89,10 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Build and push image to NAIS Artifact Repository
-        uses: nais/docker-build-push@v0
+        uses: nais/docker-build-push@05dbb6091b30bd84279c6d64a45ef8782fd410a5 # v0
         id: docker-push
         with:
           team: dapla-stat
@@ -102,7 +102,7 @@ jobs:
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
 
       - name: Deploy
-        uses: nais/deploy/actions/deploy@v2
+        uses: nais/deploy/actions/deploy@8a6fb62e73f837af6287d5db84a46ea96aa6c30d # v2
         if: ${{ steps.docker-push.outcome == 'success' }}
         env:
           CLUSTER: ${{ needs.setup-build-push-deploy.outputs.nais-cluster }}
