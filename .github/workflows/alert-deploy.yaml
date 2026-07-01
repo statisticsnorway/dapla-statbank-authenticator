@@ -32,7 +32,7 @@ jobs:
           sparse-checkout-cone-mode: false
 
       - name: Deploy to test
-        uses: nais/deploy/actions/deploy@8a6fb62e73f837af6287d5db84a46ea96aa6c30d # v2
+        uses: nais/deploy/actions/deploy@2d18f050f07b6a007864c6a57070ed915d571beb # v2
         env:
           CLUSTER: test
           RESOURCE: .nais/alerts.yaml,ext_alertconfig/alertconfig.yaml
@@ -56,7 +56,7 @@ jobs:
           sparse-checkout-cone-mode: false
       
       - name: Deploy to prod
-        uses: nais/deploy/actions/deploy@8a6fb62e73f837af6287d5db84a46ea96aa6c30d # v2
+        uses: nais/deploy/actions/deploy@2d18f050f07b6a007864c6a57070ed915d571beb # v2
         env:
           CLUSTER: prod
           RESOURCE: .nais/alerts.yaml,ext_alertconfig/alertconfig.yaml
