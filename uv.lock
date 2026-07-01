@@ -364,7 +364,7 @@ dev = [
     { name = "bump2version", specifier = ">=1.0.1" },
     { name = "httpx", specifier = ">=0.24.1" },
     { name = "pre-commit", specifier = ">=3.5.0" },
-    { name = "pycrunch-engine", specifier = ">=1.6.5" },
+    { name = "pycrunch-engine", specifier = ">=1.7.1" },
     { name = "pytest", specifier = ">=9.0.3" },
     { name = "pytest-cov", specifier = ">=7.1.0" },
     { name = "pytest-mock", specifier = ">=3.12.0" },
@@ -899,7 +899,7 @@ wheels = [
 
 [[package]]
 name = "pycrunch-engine"
-version = "1.6.5"
+version = "1.7.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -910,7 +910,7 @@ dependencies = [
     { name = "pyyaml" },
     { name = "watchdog" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ef/04/2e52736f5f0531b696e234d4c85151ae8d15d3a3a63408e9724862328a06/pycrunch_engine-1.6.5.tar.gz", hash = "sha256:773f3b96a33062131fbecf89565736a8baf9a91a60d246db5754338e931e7186", size = 362540, upload-time = "2026-03-24T09:50:00.341Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/61/aa/882db1c42bf2e668b8b4f8b6667aac5143de42961dd30b02bc70c88cc553/pycrunch_engine-1.7.1.tar.gz", hash = "sha256:5a162320138798fbbf756be303ca39437b1dc4cecd31e1a6b9f1833a2d3bbb3d", size = 372643, upload-time = "2026-06-14T08:53:24.712Z" }
 
 [[package]]
 name = "pydantic"
