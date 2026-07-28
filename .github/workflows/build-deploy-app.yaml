@@ -3,7 +3,7 @@ on:
     types: [ published ]
   push:
     branches:
-      - master
+      - main
     paths-ignore:
       - "**/*.md"
       - ".gitignore"
@@ -80,7 +80,7 @@ jobs:
 
   build-push-deploy:
     name: Build image, push to registries and deploy image
-    # If triggering event is release, the commits on 'master' should build
+    # If triggering event is release, the commits on 'main' should build
     # the image
     needs: setup-build-push-deploy
     runs-on: ubuntu-latest
