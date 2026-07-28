@@ -4,7 +4,7 @@ run-name: Deploy alerts for Dapla Statbank Authenticator to test and prod
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - '.nais/alerts.yaml'
       - '.github/workflows/alert-deploy.yaml'
