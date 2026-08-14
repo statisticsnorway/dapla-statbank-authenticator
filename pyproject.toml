@@ -26,7 +26,7 @@ Repository = "https://github.com/statisticsnorway/dapla-statbank-authenticator"
 [dependency-groups]
 dev = [
     "pre-commit>=4.6.1",
-    "black>=23.11.0",
+    "black>=26.5.1",
     "pytest>=9.1.1",
     "pytest-mock>=3.12.0",
     "pytest-cov>=7.1.0",
