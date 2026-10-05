@@ -102,7 +102,7 @@ jobs:
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
 
       - name: Deploy
-        uses: nais/deploy/actions/deploy@2d18f050f07b6a007864c6a57070ed915d571beb # v2
+        uses: nais/deploy/actions/deploy@1de80da70ad26556ecdc5964a8b7ec3bbed98120 # v2
         if: ${{ steps.docker-push.outcome == 'success' }}
         env:
           CLUSTER: ${{ needs.setup-build-push-deploy.outputs.nais-cluster }}
