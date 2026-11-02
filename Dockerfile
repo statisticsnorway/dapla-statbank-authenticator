@@ -8,6 +8,8 @@ ENV UV_PYTHON_PREFERENCE=only-managed
 
 # Install Python before the project for caching
 RUN uv python install 3.13
+# The runtime never installs packages, so drop the bundled pip (and its CVEs)
+RUN rm -rf /python/*/lib/python3.13/site-packages/pip /python/*/lib/python3.13/site-packages/pip-*.dist-info /python/*/bin/pip*
 
 WORKDIR /dist
 RUN --mount=type=cache,target=/root/.cache/uv \
