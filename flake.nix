@@ -16,6 +16,7 @@
           packages = with pkgs; [
             bump2version
             docker-language-server
+            grype
             nixd
             python313
             ruff
